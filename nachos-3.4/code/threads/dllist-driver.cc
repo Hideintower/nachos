@@ -22,10 +22,12 @@ Insert(int thread_num, int insert_num, DLList *list)
 }
 
 void
-TRemove(int keyptr, int thread_num, DLList *list)
+TRemove(int keyptr, int thread_num, int remove_num, DLList *list)
 {
-	list -> Remove(&keyptr);
-	printf("Thread %d: Remove key value %d successfully\n", thread_num, keyptr);
+	for(int i=0; i< remove_num; i++) {
+		list -> Remove(&keyptr);
+		printf("Thread %d: Remove key value %d successfully\n", thread_num, keyptr);
+	}
 }
 
 void

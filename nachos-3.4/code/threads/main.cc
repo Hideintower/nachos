@@ -58,6 +58,7 @@ extern int testnum;
 #endif
 
 #include "dllist.h"
+extern int error_type;
 
 // External functions used by this file
 
@@ -97,8 +98,13 @@ main(int argc, char **argv)
         testnum = atoi(argv[1]);
         argCount++;
         break;
+      case 'e':
+      	error_type = atoi(argv[1]);
+      	argCount++;
+      	break;
       default:
-        testnum = 1;
+        testnum = 2;
+        error_type = 0;
         break;
       }
     }
