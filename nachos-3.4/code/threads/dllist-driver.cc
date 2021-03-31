@@ -4,10 +4,16 @@
 #include <stdlib.h>
 
 void
+Initialize()
+{
+	srand(time(NULL));
+}
+
+void
 Insert(int thread_num, int insert_num, DLList *list)
 {
 	int i, key_num;
-	srand(time(NULL));
+	//srand(time(NULL));
 	for (i=0; i<insert_num; i++) {
 		key_num = rand() % 100 + 1;
 		list -> SortedInsert(NULL, key_num);

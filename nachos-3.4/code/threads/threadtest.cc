@@ -13,6 +13,7 @@
 #include "system.h"
 #include "dllist.h"
 
+extern void Initialize();
 extern void Insert(int thread_num, int insert_num, DLList* list);
 extern void TRemove(int keyptr, int thread_num, DLList *list);
 extern void TestPrepend(void *item, DLList* list);
@@ -36,21 +37,23 @@ void
 SimpleThread(int which)
 {
     int num, key;
-    
+    Initialize();
     for (num = 0; num < 5; num++) {
 	printf("*** thread %d looped %d times\n", which, num);
     Insert(which, num+1, list);
     list->ShowDLList();
     TRemove(key, which, list);
     list->ShowDLList();
-        //currentThread->Yield();
+    currentThread->Yield();
     }
+    /*
     printf("after prepend:\n");
     TestPrepend(NULL, list);
     printf("after append:\n");
     TestAppend(NULL, list);
     printf("after sorted remove:\n");
     TestSortedRemove(33, list);
+    */
 }
 
 //----------------------------------------------------------------------
@@ -66,7 +69,7 @@ ThreadTest1()
 
     Thread *t = new Thread("forked thread");
 
-    //t->Fork(SimpleThread, 1);
+    t->Fork(SimpleThread, 1);
     SimpleThread(0);
 }
 
