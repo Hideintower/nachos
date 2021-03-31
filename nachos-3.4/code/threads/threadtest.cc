@@ -37,14 +37,13 @@ void
 SimpleThread(int which)
 {
     int num, key;
-    Initialize();
     for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", which, num);
-    Insert(which, num+1, list);
-    list->ShowDLList();
-    TRemove(key, which, list);
-    list->ShowDLList();
-    currentThread->Yield();
+	   printf("*** thread %d looped %d times\n", which, num);
+        Insert(which, num+1, list);
+        list->ShowDLList();
+        TRemove(key, which, list);
+        list->ShowDLList();
+        currentThread->Yield();
     }
     /*
     printf("after prepend:\n");
@@ -66,11 +65,12 @@ void
 ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
-
-    Thread *t = new Thread("forked thread");
-
-    t->Fork(SimpleThread, 1);
-    SimpleThread(0);
+    Initialize();
+    for( int i=0; i<testnum; i++){
+        Thread *t = new Thread("forked thread");
+        t->Fork(SimpleThread, i);
+    }
+    
 }
 
 //----------------------------------------------------------------------
@@ -83,10 +83,11 @@ ThreadTest()
 {
     switch (testnum) {
     case 1:
-	ThreadTest1();
+	   ThreadTest1();
 	break;
     default:
-	printf("No test specified.\n");
+        ThreadTest1();
+        //printf("No test specified.\n");
 	break;
     }
 }
