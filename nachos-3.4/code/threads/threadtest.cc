@@ -264,8 +264,7 @@ SimpleThread(int which)
                 case 1:
                     for (num = 0; num < 5; num++) {
                         printf("*** thread %d looped %d times\n", which, num);
-                        TRemove(key, which, num+1, list);
-                        list->ShowDLList();
+                        TestSortedRemove(33, list);
                         //currentThread->Yield();
                     }
                     break;
