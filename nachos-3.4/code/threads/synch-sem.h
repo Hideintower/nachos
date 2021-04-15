@@ -49,7 +49,7 @@ class Semaphore {
   private:
     char* name;        // useful for debugging
     int value;         // semaphore value, always >= 0
-    Dllist *queue;       // threads waiting in P() for the value to be > 0
+    DLList *queue;       // threads waiting in P() for the value to be > 0
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.

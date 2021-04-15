@@ -38,7 +38,7 @@ Semaphore::Semaphore(char* debugName, int initialValue)
 {
     name = debugName;
     value = initialValue;
-    queue = new Dllist();
+    queue = new DLList();
 }
 
 //----------------------------------------------------------------------

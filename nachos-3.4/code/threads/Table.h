@@ -48,6 +48,6 @@ class Table {
    private:
      // Your code here.
     int table_size;
-    Dllist* table_list;
+    DLList* table_list;
 };
 

@@ -82,7 +82,7 @@ class Lock {
     char* name;				// for debugging
     // plus some other stuff you'll need to define
     thread* lock_thread;
-    Dllist* dqueue;
+    DLList* dqueue;
 };
 
 // The following class defines a "condition variable".  A condition
@@ -135,7 +135,7 @@ class Condition {
   private:
     char* name;
     // plus some other stuff you'll need to define
-    Dllist* dqueue;
+    DLList* dqueue;
     Lock* condition_lock;
 };
 #endif // SYNCH_H

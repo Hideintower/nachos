@@ -1,3 +1,6 @@
+#ifndef DLLIST_H
+#define DLLIST_H
+
 class DLLElement {
 public:
 	DLLElement( void *itemPtr, int sortKey);
@@ -22,3 +25,5 @@ private:
 	DLLElement *first;
 	DLLElement *last;
 };
+
+#endif

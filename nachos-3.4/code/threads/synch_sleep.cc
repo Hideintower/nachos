@@ -105,7 +105,7 @@ Lock::Lock(char* debugName)
 {
     name = debugName;
     lock_thread = NULL;
-    dqueue = new Dllist();
+    dqueue = new DLList();
 }
 
 Lock::~Lock()
@@ -156,7 +156,7 @@ Condition::Condition(char* debugName)
 {
     name = debugName;
     condition_lock = NULL;
-    dqueue = new Dllist();
+    dqueue = new DLList();
 }
 
 Condition::~Condition() 

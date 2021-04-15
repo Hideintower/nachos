@@ -4,7 +4,7 @@
 Table::Table(int size)
 {
 	table_size = size;
-	table_list = new Dllist();
+	table_list = new DLList();
 }
 
 Table::~Table()
