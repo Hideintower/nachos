@@ -25,6 +25,8 @@ extern void TestSortedRemove(int sortKey, DLList* list);
 int testnum = 2;
 extern int error_type;
 DLList* list = new DLList();
+Lock* newlock = new Lock("test Lock");
+Condition* newcondition = new Condition("test Condition");
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -38,6 +40,8 @@ DLList* list = new DLList();
 void
 SimpleThread(int which)
 {
+    //newcondition->Wait();
+    newlock->Acquire();
     int num, key;
     switch(error_type) {
         case 0:
@@ -272,6 +276,10 @@ SimpleThread(int which)
             }
             break;
     }
+
+    newlock->Release();
+    //newcondition->Signal();
+
     /*
     int num, key;
     for (num = 0; num < 5; num++) {
@@ -289,13 +297,6 @@ SimpleThread(int which)
     printf("after sorted remove:\n");
     TestSortedRemove(33, list);
     */
-}
-
-void
-SimpleSynchTest()
-{
-    
-    return;
 }
 
 //----------------------------------------------------------------------
