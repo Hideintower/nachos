@@ -23,6 +23,7 @@
 
 #include "copyright.h"
 #include "synch.h"
+//#include "synch_sem.h"
 #include "system.h"
 
 //----------------------------------------------------------------------
@@ -37,7 +38,7 @@ Semaphore::Semaphore(char* debugName, int initialValue)
 {
     name = debugName;
     value = initialValue;
-    queue = new List;
+    queue = new Dllist();
 }
 
 //----------------------------------------------------------------------
@@ -103,13 +104,109 @@ Semaphore::V()
 Lock::Lock(char* debugName)
 {
     name = debugName;
+    lock_thread = NULL;
+    locksemaphore = new Semaphore(name, 1);
 }
-Lock::~Lock() {}
-void Lock::Acquire() {}
-void Lock::Release() {}
 
-Condition::Condition(char* debugName) { }
-Condition::~Condition() { }
-void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
-void Condition::Signal(Lock* conditionLock) { }
-void Condition::Broadcast(Lock* conditionLock) { }
+Lock::~Lock()
+{
+    if(isHeldByCurrentThread())
+        Release();
+    delete locksemaphore;
+}
+
+void 
+Lock::Acquire()
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    locksemaphore->P();
+    lock_thread = currentThread;
+
+    (void) interrupt->SetLevel(oldLevel);
+}
+
+void 
+Lock::Release()
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    ASSERT(isHeldByCurrentThread());
+    locksemaphore->V();
+    lock_thread = NULL;
+
+    (void) interrupt->SetLevel(oldLevel);
+}
+
+bool 
+isHeldByCurrentThread()
+{
+    return (lock_thread == currentThread);
+}
+
+
+
+Condition::Condition(char* debugName)
+{
+    name = debugName;
+    condition_lock = NULL;
+    condition_sem = new Semaphore(name, 1);
+}
+
+Condition::~Condition()
+{
+    if(condition_lock->isHeldByCurrentThread())
+        Broadcast();
+    delete condition_sem;
+}
+
+void
+Condition::Wait(Lock* conditionLock)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    if(!condition_sem->dqueue->IsEmpty())
+    {
+        condition_lock = conditionLock;
+    }
+    ASSERT(conditionLock == condition_lock);
+    conditionLock->Release();
+    condition_sem->P();
+    conditionLock->Acquire();
+
+    (void) interrupt->SetLevel(oldLevel);
+}
+
+void
+Condition::Signal(Lock* conditionLock)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    if(condition_sem->dqueue->IsEmpty())
+    {
+        ASSERT(condition_lock == conditionLock);
+        condition_sem->V();
+    }
+
+    (void) interrupt->SetLevel(oldLevel);
+}
+
+void
+Condition::Broadcast(Lock* conditionLock)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    if(condition_sem->dqueue->IsEmpty())
+    {
+        ASSERT(conditionLock == condition_lock);
+    }
+    while(condition_sem->dqueue->IsEmpty())
+    {
+        condition_sem->V();
+    }
+
+    (void) interrupt->SetLevel(oldLevel);
+}

@@ -12,6 +12,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "dllist.h"
+#include "synch.h"
 
 extern void Initialize();
 extern void Insert(int thread_num, int insert_num, DLList* list);
@@ -288,6 +289,13 @@ SimpleThread(int which)
     printf("after sorted remove:\n");
     TestSortedRemove(33, list);
     */
+}
+
+void
+SimpleSynchTest()
+{
+    
+    return;
 }
 
 //----------------------------------------------------------------------
