@@ -15,5 +15,10 @@ class BoundedBuffer {
    private:
      // ???
     int bound_size;
+    int *buffer;
+    Lock* buffer_lock;
+    Condition* buffer_empty;
+    Condition* buffer_full;
+    int rest_space, head, tail;
 };
 

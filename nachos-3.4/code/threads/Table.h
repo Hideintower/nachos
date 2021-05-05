@@ -1,4 +1,3 @@
-#include "dllist.h"
 #include "synch.h"
 /*
 
@@ -32,7 +31,7 @@ files, etc.
 class Table {
    public:
      // create a table to hold at most 'size' entries.
-     Table(int size);
+     Table(int size = 1024);
      ~Table();
      // allocate a table slot for 'object'.
      // return the table index for the slot or -1 on error.
@@ -48,6 +47,7 @@ class Table {
    private:
      // Your code here.
     int table_size;
-    DLList* table_list;
+    void** mytable;
+    Lock* table_lock;
 };
 

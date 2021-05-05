@@ -1,8 +1,8 @@
 // synch.cc 
-//	Routines for synchronizing threads.  Three kinds of
-//	synchronization routines are defined here: semaphores, locks 
-//   	and condition variables (the implementation of the last two
-//	are left to the reader).
+//  Routines for synchronizing threads.  Three kinds of
+//  synchronization routines are defined here: semaphores, locks 
+//      and condition variables (the implementation of the last two
+//  are left to the reader).
 //
 // Any implementation of a synchronization routine needs some
 // primitive atomic operation.  We assume Nachos is running on
@@ -28,10 +28,10 @@
 
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
-// 	Initialize a semaphore, so that it can be used for synchronization.
+//  Initialize a semaphore, so that it can be used for synchronization.
 //
-//	"debugName" is an arbitrary name, useful for debugging.
-//	"initialValue" is the initial value of the semaphore.
+//  "debugName" is an arbitrary name, useful for debugging.
+//  "initialValue" is the initial value of the semaphore.
 //----------------------------------------------------------------------
 
 Semaphore::Semaphore(char* debugName, int initialValue)
@@ -43,8 +43,8 @@ Semaphore::Semaphore(char* debugName, int initialValue)
 
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
-// 	De-allocate semaphore, when no longer needed.  Assume no one
-//	is still waiting on the semaphore!
+//  De-allocate semaphore, when no longer needed.  Assume no one
+//  is still waiting on the semaphore!
 //----------------------------------------------------------------------
 
 Semaphore::~Semaphore()
@@ -54,35 +54,35 @@ Semaphore::~Semaphore()
 
 //----------------------------------------------------------------------
 // Semaphore::P
-// 	Wait until semaphore value > 0, then decrement.  Checking the
-//	value and decrementing must be done atomically, so we
-//	need to disable interrupts before checking the value.
+//  Wait until semaphore value > 0, then decrement.  Checking the
+//  value and decrementing must be done atomically, so we
+//  need to disable interrupts before checking the value.
 //
-//	Note that Thread::Sleep assumes that interrupts are disabled
-//	when it is called.
+//  Note that Thread::Sleep assumes that interrupts are disabled
+//  when it is called.
 //----------------------------------------------------------------------
 
 void
 Semaphore::P()
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
     
-    while (value == 0) { 			// semaphore not available
-	queue->Append((void *)currentThread);	// so go to sleep
-	currentThread->Sleep();
+    while (value == 0) {            // semaphore not available
+    queue->Append((void *)currentThread);   // so go to sleep
+    currentThread->Sleep();
     } 
-    value--; 					// semaphore available, 
-						// consume its value
+    value--;                    // semaphore available, 
+                        // consume its value
     
-    (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
 
 //----------------------------------------------------------------------
 // Semaphore::V
-// 	Increment semaphore value, waking up a waiter if necessary.
-//	As with P(), this operation must be atomic, so we need to disable
-//	interrupts.  Scheduler::ReadyToRun() assumes that threads
-//	are disabled when it is called.
+//  Increment semaphore value, waking up a waiter if necessary.
+//  As with P(), this operation must be atomic, so we need to disable
+//  interrupts.  Scheduler::ReadyToRun() assumes that threads
+//  are disabled when it is called.
 //----------------------------------------------------------------------
 
 void
@@ -91,9 +91,10 @@ Semaphore::V()
     Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
-    thread = (Thread *)queue->Remove();
-    if (thread != NULL)	   // make thread ready, consuming the V immediately
-	scheduler->ReadyToRun(thread);
+    int keyptr;
+    thread = (Thread *)queue->Remove(&keyptr);
+    if (thread != NULL)    // make thread ready, consuming the V immediately
+    scheduler->ReadyToRun(thread);
     value++;
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -110,8 +111,8 @@ Lock::Lock(char* debugName)
 
 Lock::~Lock()
 {
-    if(isHeldByCurrentThread())
-        Release();
+    //if(isHeldByCurrentThread())
+        //Release();
     delete locksemaphore;
 }
 
@@ -139,9 +140,11 @@ Lock::Release()
 }
 
 bool 
-isHeldByCurrentThread()
+Lock::isHeldByCurrentThread()
 {
-    return (lock_thread == currentThread);
+    if(lock_thread)
+        return (lock_thread == currentThread);
+    return TRUE;
 }
 
 
@@ -155,8 +158,8 @@ Condition::Condition(char* debugName)
 
 Condition::~Condition()
 {
-    if(condition_lock->isHeldByCurrentThread())
-        Broadcast();
+    //if(condition_lock->isHeldByCurrentThread())
+        //Broadcast();
     delete condition_sem;
 }
 
@@ -166,7 +169,7 @@ Condition::Wait(Lock* conditionLock)
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
-    if(!condition_sem->dqueue->IsEmpty())
+    if(!condition_sem->queue->IsEmpty())
     {
         condition_lock = conditionLock;
     }
@@ -184,7 +187,7 @@ Condition::Signal(Lock* conditionLock)
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
-    if(condition_sem->dqueue->IsEmpty())
+    if(condition_sem->queue->IsEmpty())
     {
         ASSERT(condition_lock == conditionLock);
         condition_sem->V();
@@ -199,11 +202,11 @@ Condition::Broadcast(Lock* conditionLock)
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
-    if(condition_sem->dqueue->IsEmpty())
+    if(condition_sem->queue->IsEmpty())
     {
         ASSERT(conditionLock == condition_lock);
     }
-    while(condition_sem->dqueue->IsEmpty())
+    while(condition_sem->queue->IsEmpty())
     {
         condition_sem->V();
     }

@@ -26,7 +26,7 @@ int testnum = 2;
 extern int error_type;
 DLList* list = new DLList();
 Lock* newlock = new Lock("test Lock");
-Condition* newcondition = new Condition("test Condition");
+
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -40,8 +40,13 @@ Condition* newcondition = new Condition("test Condition");
 void
 SimpleThread(int which)
 {
-    //newcondition->Wait();
+    /*
+    Lock* thread_lock;
+    Condition* newcondition = new Condition("test Condition");
+    thread_lock = new Lock("thread lock");
+    newcondition->Wait(thread_lock);
     newlock->Acquire();
+    */
     int num, key;
     switch(error_type) {
         case 0:
@@ -277,8 +282,10 @@ SimpleThread(int which)
             break;
     }
 
+    /*
     newlock->Release();
-    //newcondition->Signal();
+    newcondition->Signal(thread_lock);
+    */
 
     /*
     int num, key;
@@ -314,7 +321,6 @@ ThreadTest1()
         Thread *t = new Thread("forked thread");
         t->Fork(SimpleThread, i);
     }
-    
 }
 
 //----------------------------------------------------------------------
