@@ -3,7 +3,7 @@
 #include "utility.h"
 #include "system.h"
 
-int error_type = 0;
+extern int error_type;
 /*
 错误类型：
 0：无错误

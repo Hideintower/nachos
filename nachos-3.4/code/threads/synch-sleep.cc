@@ -22,8 +22,8 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch.h"
-//#include "synch_sleep.h"
+//#include "synch.h"
+#include "synch_sleep.h"
 #include "system.h"
 
 //----------------------------------------------------------------------

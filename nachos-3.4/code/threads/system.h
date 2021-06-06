@@ -15,6 +15,7 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
+#include "Alarm.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -26,7 +27,7 @@ extern Thread *currentThread;			// the thread holding the CPU
 extern Thread *threadToBeDestroyed;  		// the thread that just finished
 extern Scheduler *scheduler;			// the ready list
 extern Interrupt *interrupt;			// interrupt status
-extern Statistics *stats;			// performance metrics
+extern Statistics *stats;			// performance metrics 性能标准
 extern Timer *timer;				// the hardware alarm clock
 
 #ifdef USER_PROGRAM

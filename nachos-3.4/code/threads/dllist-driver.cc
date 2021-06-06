@@ -9,7 +9,7 @@ Lock mylock("dllist Lock");
 Condition mycondition("dllist Condition");
 
 void
-Initialize()
+Initializer()
 {
 	srand(time(NULL));
 }
@@ -71,4 +71,10 @@ TestSortedRemove(int sortKey, DLList* list)
 	list->SortedRemove(sortKey);
 	list->ShowDLList();
 	mylock.Release();
+}
+
+int
+randnum(int num, int rest)
+{
+	return rand()%num + rest;
 }

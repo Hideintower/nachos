@@ -1,5 +1,5 @@
 #include "BoundedBuffer.h"
-#include "synch.h"
+#include "system.h"
 
 BoundedBuffer::BoundedBuffer(int maxsize)
 {
@@ -29,9 +29,11 @@ BoundedBuffer::Read(void *data, int size)
 	{
 		while(rest_space == bound_size)
 			buffer_empty->Wait(buffer_lock);
-		*((int *)data+size) = buffer[head];
+		*((int *)data+i) = buffer[head];
 		head = (head + 1) % bound_size;
 		rest_space++;
+		currentThread->Yield();
+		printf(" Read: head %d, tail %d, content %c\n",head, tail, *((char*)data+i));
 		buffer_full->Signal(buffer_lock);
 	}
 	buffer_lock->Release();
@@ -45,9 +47,11 @@ BoundedBuffer::Write(void *data, int size)
 	{
 		while(rest_space == 0)
 			buffer_full->Wait(buffer_lock);
-		buffer[tail] = *((int *)data+size);
+		buffer[tail] = *((int *)data+i);
+		currentThread->Yield();
 		tail = (tail+1) % bound_size;
 		rest_space--;
+		printf("Write: head %d, tail %d, content %c\n",head, tail, *((char*)data+i));
 		buffer_empty->Signal(buffer_lock);
 	}
 	buffer_lock->Release();

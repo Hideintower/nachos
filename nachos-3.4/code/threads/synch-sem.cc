@@ -22,8 +22,8 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch.h"
-//#include "synch_sem.h"
+//#include "synch.h"
+#include "synch_sem.h"
 #include "system.h"
 
 //----------------------------------------------------------------------
@@ -119,24 +119,24 @@ Lock::~Lock()
 void 
 Lock::Acquire()
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     locksemaphore->P();
     lock_thread = currentThread;
 
-    (void) interrupt->SetLevel(oldLevel);
+    //(void) interrupt->SetLevel(oldLevel);
 }
 
 void 
 Lock::Release()
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(isHeldByCurrentThread());
     locksemaphore->V();
     lock_thread = NULL;
 
-    (void) interrupt->SetLevel(oldLevel);
+    //(void) interrupt->SetLevel(oldLevel);
 }
 
 bool 
@@ -166,7 +166,7 @@ Condition::~Condition()
 void
 Condition::Wait(Lock* conditionLock)
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
     if(!condition_sem->queue->IsEmpty())
@@ -178,13 +178,13 @@ Condition::Wait(Lock* conditionLock)
     condition_sem->P();
     conditionLock->Acquire();
 
-    (void) interrupt->SetLevel(oldLevel);
+    //(void) interrupt->SetLevel(oldLevel);
 }
 
 void
 Condition::Signal(Lock* conditionLock)
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
     if(condition_sem->queue->IsEmpty())
@@ -193,13 +193,13 @@ Condition::Signal(Lock* conditionLock)
         condition_sem->V();
     }
 
-    (void) interrupt->SetLevel(oldLevel);
+    //(void) interrupt->SetLevel(oldLevel);
 }
 
 void
 Condition::Broadcast(Lock* conditionLock)
 {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     ASSERT(conditionLock->isHeldByCurrentThread());
     if(condition_sem->queue->IsEmpty())
@@ -211,5 +211,5 @@ Condition::Broadcast(Lock* conditionLock)
         condition_sem->V();
     }
 
-    (void) interrupt->SetLevel(oldLevel);
+    //(void) interrupt->SetLevel(oldLevel);
 }

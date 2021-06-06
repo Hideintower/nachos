@@ -1,4 +1,5 @@
 #include "Table.h"
+#include "system.h"
 
 Table::Table(int size)
 {
@@ -10,12 +11,14 @@ Table::Table(int size)
 Table::~Table()
 {
 	delete[] mytable;
+	delete table_lock;
 }
 
 int
 Table::Alloc(void* object)
 {
 	table_lock->Acquire();
+	currentThread->Yield();
 	for(int i=0; i<table_size; i++)
 	{
 		if(!mytable[i])
@@ -33,6 +36,7 @@ void*
 Table::Get(int index)
 {
 	ASSERT(index < table_size && index >= 0);
+	currentThread->Yield();
 	return mytable[index];
 }
 
@@ -41,6 +45,7 @@ Table::Release(int index)
 {
 	table_lock->Acquire();
 	ASSERT(index < table_size && index >= 0);
+	currentThread->Yield();
 	mytable[index] = NULL;
 	table_lock->Release();
 }

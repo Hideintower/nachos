@@ -55,6 +55,9 @@
 
 #ifdef THREADS
 extern int testnum;
+extern int floornum;
+extern int elevatornum;
+extern int capacity;
 #endif
 
 #include "dllist.h"
@@ -102,9 +105,17 @@ main(int argc, char **argv)
       	error_type = atoi(argv[1]);
       	argCount++;
       	break;
-      default:
-        testnum = 2;
-        error_type = 0;
+      case 'b':
+        elevatornum = atoi(argv[1]);
+        argCount++;
+        break;
+      case 'f':
+        floornum = atoi(argv[1]);
+        argCount++;
+        break;
+      case 'g':
+        capacity = atoi(argv[1]);
+        argCount++;
         break;
       }
     }

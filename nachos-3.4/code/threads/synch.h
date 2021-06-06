@@ -137,8 +137,8 @@ class Condition {
 */
 
 
-
 /*
+
 
 // synch.h 
 //  Data structures for synchronizing threads.
@@ -282,9 +282,8 @@ class Condition {
 };
 #endif // SYNCH_H
 
+
 */
-
-
 
 
 // synch.h 
@@ -429,3 +428,5 @@ class Condition {
     Semaphore* condition_sem;
 };
 #endif // SYNCH_H
+
+

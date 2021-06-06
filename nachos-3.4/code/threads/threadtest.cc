@@ -13,20 +13,123 @@
 #include "system.h"
 #include "dllist.h"
 #include "synch.h"
+#include "Table.h"
+#include "BoundedBuffer.h"
+#include "Alarm.h"
+#include "EventBarrier.h"
+#include "Elevator.h"
 
-extern void Initialize();
+
+extern void Initializer();
 extern void Insert(int thread_num, int insert_num, DLList* list);
 extern void TRemove(int keyptr, int thread_num, int remove_num,  DLList *list);
 extern void TestPrepend(void *item, DLList* list);
 extern void TestAppend(void* item, DLList* list);
 extern void TestSortedRemove(int sortKey, DLList* list);
+extern void rider(int id, int srcFloor, int dstFloor);
+extern int randnum(int num, int rest);
 
 // testnum is set in main.cc
 int testnum = 2;
-extern int error_type;
+int floornum = 10;
+int elevatornum = 2;
+int capacity = -1;
+int error_type = 0;
 DLList* list = new DLList();
-Lock* newlock = new Lock("test Lock");
+//Lock* newlock = new Lock("test Lock");
+BoundedBuffer* test_buffer = new BoundedBuffer(8);
+Table* test_table = new Table(4);
 
+EventBarrier* mybarrier = new EventBarrier();
+Alarm* myalarm = new Alarm();
+Building* building;
+
+
+void to_test_table()
+{
+    char insert_message[] = "what an amazing thing!";
+    char* get_message;
+    get_message = (char*)test_table->Get(3);
+    if(get_message)
+        printf("%s\n", get_message);
+    else
+        printf("Nothing\n");
+    int pos = test_table->Alloc((void*)insert_message);
+    get_message = (char*)test_table->Get(pos);
+    if(get_message)
+        printf("%s\n", get_message);
+    else
+        printf("Nothing\n");
+    test_table->Release(pos);
+    get_message = (char*)test_table->Get(pos);
+    if(get_message)
+        printf("%s\n", get_message);
+    else
+        printf("Nothing\n");
+}
+
+
+void to_test_buffer(int which)
+{
+    char insert_message[] = "what an amazing thing!";
+    char get_message[24];
+    switch(which%2){
+        case 0:
+            test_buffer->Read((void*)get_message, sizeof(get_message));
+            if(get_message)
+                printf("%s\n", get_message);
+            else
+                printf("Nothing\n");
+            break;
+        case 1:
+            test_buffer->Write((void*)insert_message, sizeof(insert_message));
+            printf("insert complete\n");
+            break;
+    }
+}
+
+void to_test_barrier(int which)
+{
+    if(which == testnum)
+    {
+        printf("***Control Thread %d\n", which);
+        /*
+        while(mybarrier->Waiters() != testnum)
+            currentThread->Yield();
+        */
+        mybarrier->Signal();
+        printf("***Control Thread Signaled\n");
+    }
+    else
+    {
+        printf("***Work Thread %d\n", which);
+        printf("***Work Thread %d Start to Wait, Now waiting %d\n", which, mybarrier->Waiters());
+        mybarrier->Wait();
+        //currentThread->Yield();
+        mybarrier->Complete();
+        printf("***Work Thread %d Completed\n", which);
+    }
+}
+
+void to_test_alarm(int which)
+{
+    printf("***Alarm Thread %d Enters\n", which);
+    int howlong = randnum(10, 1);
+    printf("***Alarm Thread %d, Current Time:%d, Alarm Time:%d\n", which, stats->totalTicks, howlong * TimerTicks * 100000+stats->totalTicks);
+    myalarm->Pause(howlong);
+    printf("***Alarm Thread %d, Current Time:%d\n", which, stats->totalTicks);
+}
+
+void to_test_elevator(int which)
+{
+    int srcFloor, dstFloor;
+    do
+    {
+        srcFloor = randnum(floornum, 1);
+        dstFloor = randnum(floornum, 1);
+    }while (srcFloor == dstFloor);
+    rider(which, srcFloor, dstFloor);
+}
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -280,6 +383,25 @@ SimpleThread(int which)
                     break;
             }
             break;
+        case 30:
+            printf("*** thread %d\n", which);
+            to_test_table();
+            to_test_buffer(which);
+            break;
+        case 31:
+            printf("*** Thread %d Start\n", which);
+            //DEBUG('t', "*** Thread %d Start\n", which);
+            to_test_barrier(which);
+            break;
+        case 32:
+            printf("***Thread %d Start\n", which);
+            to_test_alarm(which);
+            break;
+        case 33:
+            printf("***Thread %d Start\n", which);
+            to_test_elevator(which);
+            currentThread->Yield();
+            break;
     }
 
     /*
@@ -316,10 +438,17 @@ void
 ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
-    Initialize();
+    Initializer();
+    if(error_type == 33)
+        building = new Building("test building", floornum, elevatornum);
     for( int i=0; i<testnum; i++){
         Thread *t = new Thread("forked thread");
         t->Fork(SimpleThread, i);
+    }
+    if(error_type == 31)
+    {
+        Thread *t = new Thread("forked thread");
+        t->Fork(SimpleThread, testnum);
     }
 }
 

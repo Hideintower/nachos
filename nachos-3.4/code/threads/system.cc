@@ -38,7 +38,7 @@ PostOffice *postOffice;
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup();
-
+extern Alarm *myalarm;
 
 //----------------------------------------------------------------------
 // TimerInterruptHandler
@@ -60,6 +60,7 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
+    myalarm->Wake_up();
     if (interrupt->getStatus() != IdleMode)
 	interrupt->YieldOnReturn();
 }
